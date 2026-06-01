@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://u5or7kj2ugd8"]
+
+[ext_resource type="Script" uid="uid://co2m0pdjaf6ee" path="res://scripts/Desafio.gd" id="1_e5n53"]
+
+[node name="Desafio" type="Control" unique_id=184618540]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_e5n53")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=2050402269]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LabelNivel" type="Label" parent="VBoxContainer" unique_id=2006355035]
+layout_mode = 2
+
+[node name="LabelEnunciado" type="Label" parent="VBoxContainer" unique_id=2033539250]
+layout_mode = 2
+
+[node name="InputResposta" type="LineEdit" parent="VBoxContainer" unique_id=1351937972]
+layout_mode = 2
+
+[node name="LabelErro" type="Label" parent="VBoxContainer" unique_id=1168300919]
+layout_mode = 2
+
+[node name="BtnConfirmar" type="Button" parent="VBoxContainer" unique_id=2114175096]
+layout_mode = 2

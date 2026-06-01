@@ -11,8 +11,13 @@ config_version=5
 [application]
 
 config/name="Mecanica espacada aprendizagem"
+run/main_scene="uid://c6h2nngheoec1"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+GameManager="*uid://d2klhg7wkk5lb"
 
 [dotnet]
 

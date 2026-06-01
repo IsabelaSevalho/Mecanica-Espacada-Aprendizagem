@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://d6fota06nws4"]
+
+[ext_resource type="Script" uid="uid://bp64adilbicba" path="res://scripts/Historico.gd" id="1_weat4"]
+
+[node name="Historico" type="Control" unique_id=1729834268]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_weat4")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=547036055]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="LabelHistoricoTentativas" type="Label" parent="VBoxContainer" unique_id=1369683442]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer" unique_id=1779655140]
+layout_mode = 2
+
+[node name="ListaHistorico" type="VBoxContainer" parent="VBoxContainer/ScrollContainer" unique_id=84345216]
+layout_mode = 2
+
+[node name="BtnVoltar" type="Button" parent="VBoxContainer" unique_id=1433665553]
+layout_mode = 2
