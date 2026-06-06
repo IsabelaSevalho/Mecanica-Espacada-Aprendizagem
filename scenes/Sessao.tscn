@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://deorsptdwj3xh"]
+
+[ext_resource type="Script" uid="uid://bvxjk63uk6cg7" path="res://scripts/Sessao.gd" id="1_4kfdg"]
+
+[node name="Sessao" type="Control" unique_id=1942855136]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_4kfdg")

@@ -1,8 +1,8 @@
-# Main.gd
 extends Node
 
 func _ready() -> void:
-	ir_para_desafio()
+	GameManager.iniciar_jogo()
+	call_deferred("_ir_para_menu")
 
-func ir_para_desafio() -> void:
-	get_tree().change_scene_to_file("res://scenes/Desafio.tscn")
+func _ir_para_menu() -> void:
+	get_tree().change_scene_to_file("res://scenes/Menu.tscn")

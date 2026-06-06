@@ -16,9 +16,10 @@ func _ready() -> void:
 	for entrada in GameManager.historico:
 		var label := Label.new()
 		var icone := "✅" if entrada["correto"] else "❌"
-		label.text = "%s Tentativa %d — Resp: R$%.2f (correto: R$%.2f)" % [
+		label.text = "%s S%d [%s] R$%.2f (correto: R$%.2f)" % [
 			icone,
-			entrada["tentativa"],
+			entrada["sessao"],
+			entrada["metodo"],
 			entrada["resposta_dada"],
 			entrada["resposta_correta"]
 		]

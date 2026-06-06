@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://detiuwrgoqbht"]
+
+[ext_resource type="Script" uid="uid://cu321jm5tuunw" path="res://scripts/Relatorio.gd" id="1_jih1m"]
+
+[node name="Relatorio" type="Control" unique_id=469907462]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_jih1m")
