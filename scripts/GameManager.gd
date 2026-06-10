@@ -263,4 +263,4 @@ func _calcular_dias(data_ini: String, data_fim: String) -> int:
 	# Formato esperado: "YYYY-MM-DD"
 	var ini := Time.get_unix_time_from_datetime_string(data_ini + "T00:00:00")
 	var fim := Time.get_unix_time_from_datetime_string(data_fim + "T00:00:00")
-	return int((fim - ini) / 86400.0)
+	return int((fim - ini) / 86400)
