@@ -15,7 +15,7 @@ var sessoes := [
 		"intencao": "observar",
 		"notificacao": "Bem-vindo! Hoje você vai conhecer dois jeitos de calcular porcentagem.",
 		"lembrete": "",
-		"exercicios": []  # sessão 1 só observa, sem exercícios
+		"exercicios": []
 	},
 	{
 		"id": 2,
@@ -66,14 +66,20 @@ var exercicios_A := {
 	"completar": [
 		{
 			"id": "A_C1",
-			"enunciado": "Complete: 30% de R$50 → 30÷100 = ___ → ___×50 = R$___",
-			"passos": [0.30, 15.0],
+			"enunciado": "Calcule passo a passo: 30% de R$50,00",
+			"etapas": [
+				{"texto": "Passo 1 — Transforme a porcentagem em decimal:\n30 ÷ 100 =", "resposta": 0.30},
+				{"texto": "Passo 2 — Multiplique pelo valor total:\n0,30 × 50 = R$", "resposta": 15.0},
+			],
 			"resposta": 15.0
 		},
 		{
 			"id": "A_C2",
-			"enunciado": "Complete: 20% de R$80 → 20÷100 = ___ → ___×80 = R$___",
-			"passos": [0.20, 16.0],
+			"enunciado": "Calcule passo a passo: 20% de R$80,00",
+			"etapas": [
+				{"texto": "Passo 1 — Transforme a porcentagem em decimal:\n20 ÷ 100 =", "resposta": 0.20},
+				{"texto": "Passo 2 — Multiplique pelo valor total:\n0,20 × 80 = R$", "resposta": 16.0},
+			],
 			"resposta": 16.0
 		},
 	],
@@ -127,14 +133,20 @@ var exercicios_B := {
 	"completar": [
 		{
 			"id": "B_C1",
-			"enunciado": "Complete: 40% de R$60 → 10%=___ → ___+___+___+___ = R$___",
-			"passos": [6.0, 24.0],
+			"enunciado": "Calcule passo a passo: 40% de R$60,00",
+			"etapas": [
+				{"texto": "Passo 1 — Calcule 10% do valor:\n10% de 60 = R$", "resposta": 6.0},
+				{"texto": "Passo 2 — Some 4 vezes (40% = 4 × 10%):\n6 + 6 + 6 + 6 = R$", "resposta": 24.0},
+			],
 			"resposta": 24.0
 		},
 		{
 			"id": "B_C2",
-			"enunciado": "Complete: 30% de R$90 → 10%=___ → ___+___+___ = R$___",
-			"passos": [9.0, 27.0],
+			"enunciado": "Calcule passo a passo: 30% de R$90,00",
+			"etapas": [
+				{"texto": "Passo 1 — Calcule 10% do valor:\n10% de 90 = R$", "resposta": 9.0},
+				{"texto": "Passo 2 — Some 3 vezes (30% = 3 × 10%):\n9 + 9 + 9 = R$", "resposta": 27.0},
+			],
 			"resposta": 27.0
 		},
 	],
@@ -187,29 +199,96 @@ var exercicios_B := {
 # ══════════════════════════════════════════
 # ESTADO DO JOGO
 # ══════════════════════════════════════════
-var sessao_atual_id: int = 1
-var exercicio_atual := {}
-var metodo_atual: String = "A"  # alterna A e B
-var historico := []
-var erros_agendados := []  # [{exercicio, sessao_alvo}]
-var data_inicio: String = ""  # formato "YYYY-MM-DD"
+var sessao_atual_id: int  = 1
+var exercicio_atual  := {}
+var metodo_atual: String  = "A"
+var historico        := []
+var erros_agendados  := []
+var data_inicio: String   = ""
 var ultimo_resultado := {}
+
+const SAVE_PATH := "user://save.json"
+
+# ══════════════════════════════════════════
+# CICLO DE VIDA
+# ══════════════════════════════════════════
+
+func _ready() -> void:
+	carregar_estado()
+
+# ══════════════════════════════════════════
+# SAVE / LOAD
+# ══════════════════════════════════════════
+
+func salvar_estado() -> void:
+	var dados := {
+		"sessao_atual_id": sessao_atual_id,
+		"metodo_atual":    metodo_atual,
+		"data_inicio":     data_inicio,
+		"historico":       historico,
+		"erros_agendados": erros_agendados,
+	}
+	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if f:
+		f.store_string(JSON.stringify(dados, "\t"))
+		f.close()
+
+func carregar_estado() -> void:
+	if not FileAccess.file_exists(SAVE_PATH):
+		return
+	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	if not f:
+		return
+	var resultado: Variant = JSON.parse_string(f.get_as_text())
+	f.close()
+	if resultado == null or not resultado is Dictionary:
+		return
+	sessao_atual_id  = resultado.get("sessao_atual_id",  1)
+	metodo_atual     = resultado.get("metodo_atual",     "A")
+	data_inicio      = resultado.get("data_inicio",      "")
+	historico        = resultado.get("historico",        [])
+	erros_agendados  = resultado.get("erros_agendados",  [])
+
+func resetar_jogo() -> void:
+	sessao_atual_id  = 1
+	metodo_atual     = "A"
+	data_inicio      = ""
+	historico        = []
+	erros_agendados  = []
+	ultimo_resultado = {}
+	# Apaga o arquivo de save
+	if FileAccess.file_exists(SAVE_PATH):
+		DirAccess.remove_absolute(SAVE_PATH)
 
 # ══════════════════════════════════════════
 # FUNÇÕES PRINCIPAIS
 # ══════════════════════════════════════════
 
 func iniciar_jogo() -> void:
+	# Só define data_inicio na primeira vez
 	if data_inicio == "":
 		data_inicio = Time.get_date_string_from_system()
+		salvar_estado()
 
 func sessao_disponivel(id: int) -> bool:
 	if modo_demonstracao:
 		return true
-	var sessao = sessoes[id - 1]
-	var hoje := Time.get_date_string_from_system()
-	var dias_passados := _calcular_dias(data_inicio, hoje)
-	return dias_passados >= sessao["dia"]
+	if data_inicio == "":
+		return id == 1
+	var sessao: Dictionary = sessoes[id - 1]
+	var hoje   := Time.get_date_string_from_system()
+	var dias   := _calcular_dias(data_inicio, hoje)
+	return dias >= int(sessao["dia"])
+
+# Retorna quantos dias faltam para a sessão ficar disponível (0 = disponível)
+func dias_restantes(id: int) -> int:
+	if modo_demonstracao or data_inicio == "":
+		return 0
+	var sessao: Dictionary = sessoes[id - 1]
+	var hoje   := Time.get_date_string_from_system()
+	var dias   := _calcular_dias(data_inicio, hoje)
+	var faltam := int(sessao["dia"]) - dias
+	return max(0, faltam)
 
 func get_sessao_atual() -> Dictionary:
 	return sessoes[sessao_atual_id - 1]
@@ -221,46 +300,57 @@ func proxima_sessao_disponivel() -> int:
 	return sessao_atual_id
 
 func get_exercicio(metodo: String, intencao: String) -> Dictionary:
-	var banco = exercicios_A if metodo == "A" else exercicios_B
+	var banco := exercicios_A if metodo == "A" else exercicios_B
 	if not banco.has(intencao):
 		return {}
-	
-	# Verifica se tem erros agendados para essa sessão
+
+	# Verifica erros agendados para esta sessão
 	for erro in erros_agendados:
 		if erro["sessao_alvo"] == sessao_atual_id and erro["metodo"] == metodo:
 			erros_agendados.erase(erro)
 			return erro["exercicio"]
-	
-	var lista: Array = banco[intencao]
+
+	var lista: Array = banco[intencao].duplicate()
 	lista.shuffle()
 	return lista[0]
 
 func registrar_resposta(exercicio: Dictionary, resposta_dada: float, correto: bool, usou_dica: bool) -> void:
 	historico.append({
-		"sessao": sessao_atual_id,
-		"exercicio_id": exercicio.get("id", ""),
-		"metodo": metodo_atual,
-		"resposta_dada": resposta_dada,
+		"sessao":           sessao_atual_id,
+		"exercicio_id":     exercicio.get("id", ""),
+		"enunciado":        exercicio.get("enunciado", ""),
+		"metodo":           metodo_atual,
+		"resposta_dada":    resposta_dada,
 		"resposta_correta": exercicio.get("resposta", 0.0),
-		"correto": correto,
-		"usou_dica": usou_dica
+		"correto":          correto,
+		"usou_dica":        usou_dica,
 	})
-	
-	# Agenda revisão se errou
+
 	if not correto:
 		var proxima := sessao_atual_id + 1
 		if proxima <= 6:
 			erros_agendados.append({
-				"exercicio": exercicio,
-				"metodo": metodo_atual,
+				"exercicio":   exercicio,
+				"metodo":      metodo_atual,
 				"sessao_alvo": proxima
 			})
+
+	if not modo_demonstracao:
+		salvar_estado()
 
 func alternar_metodo() -> void:
 	metodo_atual = "B" if metodo_atual == "A" else "A"
 
+func avancar_sessao() -> void:
+	sessao_atual_id += 1
+	if not modo_demonstracao:
+		salvar_estado()
+
+# ══════════════════════════════════════════
+# UTILITÁRIOS
+# ══════════════════════════════════════════
+
 func _calcular_dias(data_ini: String, data_fim: String) -> int:
-	# Formato esperado: "YYYY-MM-DD"
 	var ini := Time.get_unix_time_from_datetime_string(data_ini + "T00:00:00")
 	var fim := Time.get_unix_time_from_datetime_string(data_fim + "T00:00:00")
-	return int((fim - ini) / 86400)
+	return int((fim - ini) / 86400.0)

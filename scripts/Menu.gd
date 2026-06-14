@@ -22,10 +22,10 @@ func _ready() -> void:
 	# ── Container central ─────────────────────────────────────────
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_top",    80)
-	margin.add_theme_constant_override("margin_bottom", 60)
-	margin.add_theme_constant_override("margin_left",   60)
-	margin.add_theme_constant_override("margin_right",  60)
+	margin.add_theme_constant_override("margin_top",    50)
+	margin.add_theme_constant_override("margin_bottom", 40)
+	margin.add_theme_constant_override("margin_left",   28)
+	margin.add_theme_constant_override("margin_right",  28)
 	add_child(margin)
 
 	var vbox := VBoxContainer.new()
@@ -64,6 +64,8 @@ func _ready() -> void:
 		"Sessões liberadas dia a dia,\ncomo um app de estudos.",
 		func():
 			GameManager.modo_demonstracao = false
+			GameManager.carregar_estado()
+			GameManager.iniciar_jogo()
 			ir_para_sessao()
 	)
 	vbox.add_child(_card_real)
@@ -80,6 +82,10 @@ func _ready() -> void:
 		"Todas as sessões liberadas.\nIdeal para apresentar o projeto.",
 		func():
 			GameManager.modo_demonstracao = true
+			GameManager.sessao_atual_id    = 1
+			GameManager.metodo_atual       = "A"
+			GameManager.historico          = []
+			GameManager.erros_agendados    = []
 			ir_para_sessao()
 	)
 	vbox.add_child(_card_demo)

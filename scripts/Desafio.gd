@@ -2,10 +2,17 @@ extends Control
 
 const FONTE := preload("res://Fonte/FredokaOne-Regular.ttf")
 
-var exercicio  := {}
-var usou_dica  := false
-var _input_ref: LineEdit   = null
-var _erro_ref:  Label      = null
+var exercicio   := {}
+var usou_dica   := false
+
+# Modo padrão (resposta única)
+var _input_ref:  LineEdit = null
+var _erro_ref:   Label    = null
+
+# Modo "completar" (passo a passo)
+var _etapas:        Array      = []
+var _etapa_atual:   int        = 0
+var _linhas_etapa:  Array      = []   # [{linha, input, label}]
 
 func _ready() -> void:
 	anchor_right  = 1.0
@@ -25,10 +32,10 @@ func _ready() -> void:
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_top",    70)
-	margin.add_theme_constant_override("margin_left",   80)
-	margin.add_theme_constant_override("margin_right",  80)
-	margin.add_theme_constant_override("margin_bottom", 60)
+	margin.add_theme_constant_override("margin_top",    50)
+	margin.add_theme_constant_override("margin_left",   28)
+	margin.add_theme_constant_override("margin_right",  28)
+	margin.add_theme_constant_override("margin_bottom", 40)
 	add_child(margin)
 
 	var vbox := VBoxContainer.new()
@@ -55,7 +62,36 @@ func _ready() -> void:
 	vbox.add_child(enunciado)
 	elementos.append(enunciado)
 
-	# ── Campo de resposta ─────────────────────────────────────────
+	# ── Label de erro/dica (declarado antes, usado nos dois modos) ─
+	var label_erro := _label("", 15, Color(1.0, 0.4, 0.4))
+	label_erro.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_erro_ref = label_erro
+
+	if exercicio.has("etapas"):
+		_montar_modo_etapas(vbox, elementos, label_erro)
+	else:
+		_montar_modo_unico(vbox, elementos, label_erro, sessao)
+
+	vbox.add_child(label_erro)
+
+	# ── Botão confirmar ───────────────────────────────────────────
+	var btn := _criar_botao("CONFIRMAR", Color(0.22, 0.15, 0.45), Color(0.85, 0.72, 1.0))
+	_conectar_btn(btn, func(): _ao_confirmar())
+	vbox.add_child(btn)
+	elementos.append(btn)
+
+	# ── Fade-in cascata ───────────────────────────────────────────
+	await get_tree().process_frame
+	_fade_in_tela(elementos)
+
+	await get_tree().create_timer(0.45).timeout
+	if _input_ref != null:
+		_input_ref.grab_focus()
+
+
+# ── Modo padrão: resposta única ───────────────────────────────────
+
+func _montar_modo_unico(vbox: VBoxContainer, elementos: Array, label_erro: Label, sessao: Dictionary) -> void:
 	var input := LineEdit.new()
 	input.placeholder_text = "Digite sua resposta (ex: 15.00)"
 	input.add_theme_font_override("font", FONTE)
@@ -65,14 +101,7 @@ func _ready() -> void:
 	elementos.append(input)
 	_input_ref = input
 
-	# Enter também confirma
 	input.text_submitted.connect(func(_t): _ao_confirmar())
-
-	# ── Label de erro/dica ────────────────────────────────────────
-	var label_erro := _label("", 15, Color(1.0, 0.4, 0.4))
-	label_erro.autowrap_mode = TextServer.AUTOWRAP_WORD
-	vbox.add_child(label_erro)
-	_erro_ref = label_erro
 
 	# ── Botão dica ────────────────────────────────────────────────
 	var sessao_intencao: String = sessao["intencao"]
@@ -87,18 +116,46 @@ func _ready() -> void:
 		vbox.add_child(btn_dica)
 		elementos.append(btn_dica)
 
-	# ── Botão confirmar ───────────────────────────────────────────
-	var btn := _criar_botao("CONFIRMAR", Color(0.22, 0.15, 0.45), Color(0.85, 0.72, 1.0))
-	_conectar_btn(btn, func(): _ao_confirmar())
-	vbox.add_child(btn)
-	elementos.append(btn)
 
-	# ── Fade-in cascata ───────────────────────────────────────────
-	await get_tree().process_frame
-	_fade_in_tela(elementos)
-	# Foca o input após animação
-	await get_tree().create_timer(0.45).timeout
-	input.grab_focus()
+# ── Modo "completar": passo a passo ────────────────────────────────
+
+func _montar_modo_etapas(vbox: VBoxContainer, elementos: Array, _label_erro: Label) -> void:
+	_etapas = exercicio["etapas"]
+	_etapa_atual = 0
+
+	var passos_box := VBoxContainer.new()
+	passos_box.add_theme_constant_override("separation", 16)
+	vbox.add_child(passos_box)
+	elementos.append(passos_box)
+
+	for i in _etapas.size():
+		var etapa: Dictionary = _etapas[i]
+
+		var linha := HBoxContainer.new()
+		linha.add_theme_constant_override("separation", 14)
+		passos_box.add_child(linha)
+
+		var lbl_texto := _label(etapa["texto"], 18, Color(0.85, 0.85, 0.95))
+		lbl_texto.autowrap_mode    = TextServer.AUTOWRAP_WORD
+		lbl_texto.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		linha.add_child(lbl_texto)
+
+		var input := LineEdit.new()
+		input.placeholder_text = "?"
+		input.add_theme_font_override("font", FONTE)
+		input.add_theme_font_size_override("font_size", 22)
+		input.custom_minimum_size = Vector2(120, 54)
+		input.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		input.text_submitted.connect(func(_t): _ao_confirmar())
+		linha.add_child(input)
+
+		if i > 0:
+			linha.modulate.a = 0.0
+			input.editable   = false
+
+		_linhas_etapa.append({"linha": linha, "input": input, "label": lbl_texto})
+
+	_input_ref = (_linhas_etapa[0]["input"] as LineEdit)
 
 
 # ── Input global: Tab confirma ────────────────────────────────────
@@ -113,6 +170,13 @@ func _input(event: InputEvent) -> void:
 # ── Lógica de confirmação ─────────────────────────────────────────
 
 func _ao_confirmar() -> void:
+	if exercicio.has("etapas"):
+		_confirmar_etapa()
+	else:
+		_confirmar_unico()
+
+
+func _confirmar_unico() -> void:
 	if _input_ref == null or _erro_ref == null:
 		return
 	var texto: String = _input_ref.text.strip_edges().replace(",", ".")
@@ -126,6 +190,58 @@ func _ao_confirmar() -> void:
 	var resposta_correta: float = exercicio.get("resposta", 0.0)
 	var correto: bool = abs(resposta_dada - resposta_correta) < 0.01
 
+	_finalizar(resposta_dada, resposta_correta, correto)
+
+
+func _confirmar_etapa() -> void:
+	if _erro_ref == null or _linhas_etapa.is_empty():
+		return
+
+	var atual: Dictionary = _linhas_etapa[_etapa_atual]
+	var input := atual["input"] as LineEdit
+	var texto: String = input.text.strip_edges().replace(",", ".")
+
+	if not texto.is_valid_float():
+		_erro_ref.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+		_erro_ref.text = "⚠ Digite apenas números (ex: 0.30 ou 15.00)"
+		_animar_shake(_erro_ref)
+		return
+
+	var valor_dado:    float = float(texto)
+	var valor_esperado: float = _etapas[_etapa_atual]["resposta"]
+	var correto: bool = abs(valor_dado - valor_esperado) < 0.01
+
+	if not correto:
+		_erro_ref.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+		_erro_ref.text = "⚠ Ainda não é isso. Revise este passo e tente de novo."
+		_animar_shake(input)
+		return
+
+	# Passo correto
+	_erro_ref.text = ""
+	input.editable = false
+	input.add_theme_color_override("font_color", Color(0.35, 0.95, 0.55))
+
+	var ultimo := _etapa_atual == _etapas.size() - 1
+
+	if ultimo:
+		var resposta_correta: float = exercicio.get("resposta", 0.0)
+		_finalizar(valor_dado, resposta_correta, true)
+	else:
+		_etapa_atual += 1
+		var proxima: Dictionary = _linhas_etapa[_etapa_atual]
+		var prox_input := proxima["input"] as LineEdit
+		var prox_linha := proxima["linha"] as Control
+
+		prox_input.editable = true
+		_revelar_linha(prox_linha)
+
+		_input_ref = prox_input
+		await get_tree().create_timer(0.30).timeout
+		prox_input.grab_focus()
+
+
+func _finalizar(resposta_dada: float, resposta_correta: float, correto: bool) -> void:
 	GameManager.registrar_resposta(exercicio, resposta_dada, correto, usou_dica)
 	GameManager.ultimo_resultado = {
 		"correto":          correto,
@@ -158,6 +274,14 @@ func _fade_in_tela(elementos: Array) -> void:
 		t.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 		t.tween_property(el, "modulate:a", 1.0, 0.28)
 		t.parallel().tween_property(el, "position:y", el.position.y - 16, 0.28)
+
+
+func _revelar_linha(linha: Control) -> void:
+	linha.position.x -= 16
+	var t := create_tween()
+	t.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	t.tween_property(linha, "modulate:a", 1.0, 0.30)
+	t.parallel().tween_property(linha, "position:x", linha.position.x + 16, 0.30)
 
 
 func _animar_entrada_label(lbl: Label) -> void:

@@ -24,10 +24,10 @@ func _ready() -> void:
 	add_child(scroll)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_top",    60)
-	margin.add_theme_constant_override("margin_left",   70)
-	margin.add_theme_constant_override("margin_right",  70)
-	margin.add_theme_constant_override("margin_bottom", 60)
+	margin.add_theme_constant_override("margin_top",    45)
+	margin.add_theme_constant_override("margin_left",   28)
+	margin.add_theme_constant_override("margin_right",  28)
+	margin.add_theme_constant_override("margin_bottom", 40)
 	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(margin)
 
@@ -67,16 +67,18 @@ func _ready() -> void:
 	_espaco(vbox, 30)
 
 	# ── Cards de resumo (linha) ───────────────────────────────────
-	var hbox_resumo := HBoxContainer.new()
-	hbox_resumo.add_theme_constant_override("separation", 12)
-	hbox_resumo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.add_child(hbox_resumo)
-	elementos.append(hbox_resumo)
+	var grid_resumo := GridContainer.new()
+	grid_resumo.columns = 2
+	grid_resumo.add_theme_constant_override("h_separation", 12)
+	grid_resumo.add_theme_constant_override("v_separation", 12)
+	grid_resumo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(grid_resumo)
+	elementos.append(grid_resumo)
 
-	hbox_resumo.add_child(_card_stat("Total", str(total), "exercícios", Color(0.18, 0.18, 0.30), Color(0.75, 0.75, 1.0)))
-	hbox_resumo.add_child(_card_stat("Acertos", str(acertos), "%d%%" % pct, Color(0.10, 0.26, 0.14), Color(0.35, 0.95, 0.55)))
-	hbox_resumo.add_child(_card_stat("Erros", str(erros), "reagendados", Color(0.26, 0.10, 0.10), Color(0.95, 0.40, 0.40)))
-	hbox_resumo.add_child(_card_stat("Dicas", str(com_dica), "usadas", Color(0.22, 0.16, 0.04), Color(1.0, 0.85, 0.3)))
+	grid_resumo.add_child(_card_stat("Total", str(total), "exercícios", Color(0.18, 0.18, 0.30), Color(0.75, 0.75, 1.0)))
+	grid_resumo.add_child(_card_stat("Acertos", str(acertos), "%d%%" % pct, Color(0.10, 0.26, 0.14), Color(0.35, 0.95, 0.55)))
+	grid_resumo.add_child(_card_stat("Erros", str(erros), "reagendados", Color(0.26, 0.10, 0.10), Color(0.95, 0.40, 0.40)))
+	grid_resumo.add_child(_card_stat("Dicas", str(com_dica), "usadas", Color(0.22, 0.16, 0.04), Color(1.0, 0.85, 0.3)))
 
 	_espaco(vbox, 24)
 
@@ -190,11 +192,7 @@ func _ready() -> void:
 	_btn_principal = _criar_botao("🔄  JOGAR NOVAMENTE", Color(0.22, 0.15, 0.45), Color(0.85, 0.72, 1.0))
 	_conectar_btn(_btn_principal, func():
 		_sair_para(func():
-			GameManager.sessao_atual_id = 1
-			GameManager.historico       = []
-			GameManager.erros_agendados = []
-			GameManager.metodo_atual    = "A"
-			GameManager.data_inicio     = ""
+			GameManager.resetar_jogo()
 			get_tree().change_scene_to_file("res://scenes/Menu.tscn")
 		)
 	)

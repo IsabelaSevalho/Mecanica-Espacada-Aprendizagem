@@ -20,10 +20,10 @@ func _ready() -> void:
 	# ── Layout principal ──────────────────────────────────────────
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_top",    60)
-	margin.add_theme_constant_override("margin_left",   70)
-	margin.add_theme_constant_override("margin_right",  70)
-	margin.add_theme_constant_override("margin_bottom", 60)
+	margin.add_theme_constant_override("margin_top",    45)
+	margin.add_theme_constant_override("margin_left",   28)
+	margin.add_theme_constant_override("margin_right",  28)
+	margin.add_theme_constant_override("margin_bottom", 40)
 	add_child(margin)
 
 	var outer := VBoxContainer.new()

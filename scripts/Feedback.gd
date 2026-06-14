@@ -22,10 +22,10 @@ func _ready() -> void:
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_top",    70)
-	margin.add_theme_constant_override("margin_left",   80)
-	margin.add_theme_constant_override("margin_right",  80)
-	margin.add_theme_constant_override("margin_bottom", 60)
+	margin.add_theme_constant_override("margin_top",    50)
+	margin.add_theme_constant_override("margin_left",   28)
+	margin.add_theme_constant_override("margin_right",  28)
+	margin.add_theme_constant_override("margin_bottom", 40)
 	add_child(margin)
 
 	var vbox := VBoxContainer.new()
@@ -208,7 +208,7 @@ func _proxima_acao(sessao: Dictionary, metodo_atual: String) -> Dictionary:
 
 
 func _proxima_cena(sessao_id: int) -> String:
-	GameManager.sessao_atual_id = sessao_id
+	GameManager.avancar_sessao()
 	return "res://scenes/Sessao.tscn"
 
 

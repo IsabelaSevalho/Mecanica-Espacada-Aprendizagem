@@ -11,6 +11,11 @@ func _ready() -> void:
 
 	var sessao := GameManager.get_sessao_atual()
 
+	# ── Verifica se a sessão já está disponível ────────────────────
+	if not GameManager.sessao_disponivel(GameManager.sessao_atual_id):
+		_montar_tela_bloqueada()
+		return
+
 	# ── Fundo ─────────────────────────────────────────────────────
 	var bg := ColorRect.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -23,10 +28,10 @@ func _ready() -> void:
 	# ── Margin + VBox ─────────────────────────────────────────────
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_top",    70)
-	margin.add_theme_constant_override("margin_left",   80)
-	margin.add_theme_constant_override("margin_right",  80)
-	margin.add_theme_constant_override("margin_bottom", 60)
+	margin.add_theme_constant_override("margin_top",    50)
+	margin.add_theme_constant_override("margin_left",   28)
+	margin.add_theme_constant_override("margin_right",  28)
+	margin.add_theme_constant_override("margin_bottom", 40)
 	add_child(margin)
 
 	var vbox := VBoxContainer.new()
@@ -83,6 +88,81 @@ func _input(event: InputEvent) -> void:
 		if _btn_principal != null:
 			var btn := _btn_principal.get_meta("btn") as Button
 			btn.emit_signal("pressed")
+
+
+
+# ── Sessão ainda não disponível ───────────────────────────────────
+func _montar_tela_bloqueada() -> void:
+	# ── Fundo ─────────────────────────────────────────────────────
+	var bg := ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color(0.09, 0.09, 0.15)
+	add_child(bg)
+
+	_adicionar_simbolos()
+
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left",  28)
+	margin.add_theme_constant_override("margin_right", 28)
+	add_child(margin)
+
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.add_child(center)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 18)
+	center.add_child(vbox)
+
+	var elementos: Array = []
+
+	var icone := _label("⏳", 64, Color(0.72, 0.55, 1.0))
+	icone.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(icone)
+	elementos.append(icone)
+
+	var titulo := _label("Volte em breve!", 30, Color.WHITE)
+	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(titulo)
+	elementos.append(titulo)
+
+	var dias := GameManager.dias_restantes(GameManager.sessao_atual_id)
+	var txt_dias: String
+	if dias <= 1:
+		txt_dias = "Sua próxima sessão libera amanhã."
+	else:
+		txt_dias = "Sua próxima sessão libera em %d dias." % dias
+
+	var lbl_dias := _label(txt_dias, 18, Color(0.70, 0.70, 0.85))
+	lbl_dias.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(lbl_dias)
+	elementos.append(lbl_dias)
+
+	_espaco(vbox, 10)
+
+	var lbl_info := _label(
+		"O espaçamento entre sessões ajuda na memorização!\nVolte quando estiver disponível. 🧠",
+		15, Color(0.55, 0.55, 0.70)
+	)
+	lbl_info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_info.autowrap_mode = TextServer.AUTOWRAP_WORD
+	vbox.add_child(lbl_info)
+	elementos.append(lbl_info)
+
+	_espaco(vbox, 10)
+
+	_btn_principal = _criar_botao("← VOLTAR AO MENU", Color(0.14, 0.12, 0.24), Color(0.75, 0.65, 1.0))
+	_conectar_btn(_btn_principal, func():
+		_sair_para(func():
+			get_tree().change_scene_to_file("res://scenes/Menu.tscn")
+		)
+	)
+	vbox.add_child(_btn_principal)
+	elementos.append(_btn_principal)
+
+	await get_tree().process_frame
+	_fade_in_tela(elementos)
 
 
 # ── Observação ────────────────────────────────────────────────────
