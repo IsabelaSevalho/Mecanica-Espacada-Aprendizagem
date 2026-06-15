@@ -212,24 +212,21 @@ func _montar_observacao(vbox: VBoxContainer, elementos: Array) -> void:
 	var terminou := [false]
 
 	btn_proximo_btn.pressed.connect(func():
-		if terminou[0]:
-			return
 		if index[0] < todos.size():
 			_revelar_label(todos[index[0]])
 			index[0] += 1
-		if index[0] >= todos.size():
-			terminou[0] = true
-			btn_proximo_lbl.text = "IR PARA PRÓXIMA SESSÃO ▶"
-	)
-
-	# botão de navegação só ativo após terminar todos os passos
-	btn_proximo_btn.pressed.connect(func():
-		if not terminou[0]:
+			if index[0] >= todos.size():
+				terminou[0] = true
+				btn_proximo_lbl.text = "IR PARA PRÓXIMA SESSÃO ▶"
+			# Esse clique apenas revela o último passo.
+			# A navegação exige um clique separado (próximo).
 			return
-		_sair_para(func():
-			GameManager.sessao_atual_id = 2
-			get_tree().change_scene_to_file("res://scenes/Sessao.tscn")
-		)
+
+		if terminou[0]:
+			_sair_para(func():
+				GameManager.sessao_atual_id = 2
+				get_tree().change_scene_to_file("res://scenes/Sessao.tscn")
+			)
 	)
 
 
