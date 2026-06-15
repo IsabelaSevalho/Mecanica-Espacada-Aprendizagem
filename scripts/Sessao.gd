@@ -175,11 +175,13 @@ func _montar_observacao(vbox: VBoxContainer, elementos: Array) -> void:
 		"Passo 2: 0,25 × 80 = R$20,00 ✅"
 	]
 	var passos_B := [
-		"Exemplo — Método B (Decomposição):",
-		"Quanto é 25% de R$80?",
-		"10% de 80 = 8  |  10% de 80 = 8  |  5% de 80 = 4",
-		"8 + 8 + 4 = R$20,00 ✅"
-	]
+	"Exemplo — Método B (Decomposição):",
+	"Quanto é 25% de R$80?",
+	"Passo 1: decompor 25% → 10% + 10% + 5%",
+	"Passo 2: 10% de 80 = 8",
+	"Passo 3: 5% de 80 = 4",
+	"Passo final: 8 + 8 + 4 = R$20,00 ✅"
+]
 
 	var index   := [0]
 	var todos: Array = []

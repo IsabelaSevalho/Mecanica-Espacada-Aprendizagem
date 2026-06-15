@@ -30,7 +30,7 @@ func _ready() -> void:
 
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 0)
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.alignment = BoxContainer.ALIGNMENT_BEGIN
 	margin.add_child(vbox)
 
 	# ── Título ────────────────────────────────────────────────────

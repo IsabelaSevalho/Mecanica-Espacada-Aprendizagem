@@ -136,14 +136,14 @@ func _ready() -> void:
 
 	_espaco(vbox, 10)
 
-	var hbox_met := HBoxContainer.new()
-	hbox_met.add_theme_constant_override("separation", 12)
-	hbox_met.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.add_child(hbox_met)
-	elementos.append(hbox_met)
+	var vbox_met := VBoxContainer.new()
+	vbox_met.add_theme_constant_override("separation", 12)
+	vbox_met.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(vbox_met)
+	elementos.append(vbox_met)
 
-	hbox_met.add_child(_card_metodo("A", "Coeficiente Decimal", acertos_A, total_A, Color(0.20, 0.14, 0.36), Color(0.80, 0.60, 1.0)))
-	hbox_met.add_child(_card_metodo("B", "Decomposição", acertos_B, total_B, Color(0.10, 0.22, 0.26), Color(0.40, 0.90, 0.90)))
+	vbox_met.add_child(_card_metodo("A", "Coeficiente Decimal", acertos_A, total_A, Color(0.20, 0.14, 0.36), Color(0.80, 0.60, 1.0)))
+	vbox_met.add_child(_card_metodo("B", "Decomposição", acertos_B, total_B, Color(0.10, 0.22, 0.26), Color(0.40, 0.90, 0.90)))
 
 	_espaco(vbox, 24)
 

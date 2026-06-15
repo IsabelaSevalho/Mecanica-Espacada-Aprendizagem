@@ -36,7 +36,7 @@ var sessoes := [
 	{
 		"id": 4,
 		"dia": 6,
-		"intencao": "sem_apoio",
+		"intencao": "completar",
 		"notificacao": "Desafio do dia: sem dicas desta vez. Você consegue!",
 		"lembrete": "",
 		"exercicios": ["A", "B"]
@@ -81,6 +81,25 @@ var exercicios_A := {
 				{"texto": "Passo 2 — Multiplique pelo valor total:\n0,20 × 80 = R$", "resposta": 16.0},
 			],
 			"resposta": 16.0
+		},
+		{
+			"id": "A_C3",
+			"enunciado": "Um produto custa R$200. O preço aumentou 15%. Qual o novo preço?",
+			"etapas": [
+				{"texto": "Passo 1 — Transforme em decimal:\n15 ÷ 100 =", "resposta": 0.15},
+				{"texto": "Passo 2 — Calcule o aumento:\n0,15 × 200 = R$", "resposta": 30.0},
+				{"texto": "Passo final — Some ao valor original:\n200 + 30 = R$", "resposta": 230.0},
+			],
+			"resposta": 230.0
+		},
+		{
+			"id": "A_C4",
+			"enunciado": "Uma loja deu 40% de desconto em um item de R$150. Qual o valor do desconto?",
+			"etapas": [
+				{"texto": "Passo 1 — Transforme em decimal:\n40 ÷ 100 =", "resposta": 0.40},
+				{"texto": "Passo 2 — Multiplique pelo valor total:\n0,40 × 150 = R$", "resposta": 60.0},
+			],
+			"resposta": 60.0
 		},
 	],
 	"apoio": [
@@ -148,6 +167,26 @@ var exercicios_B := {
 				{"texto": "Passo 2 — Some 3 vezes (30% = 3 × 10%):\n9 + 9 + 9 = R$", "resposta": 27.0},
 			],
 			"resposta": 27.0
+		},
+		{
+			"id": "B_C3",
+			"enunciado": "Um celular custa R$500. O preço subiu 20%. Qual o valor do aumento?",
+			"etapas": [
+				{"texto": "Passo 1 — Calcule 10% do valor:\n10% de 500 = R$", "resposta": 50.0},
+				{"texto": "Passo 2 — Some 2 vezes (20% = 10% + 10%):\n50 + 50 = R$", "resposta": 100.0},
+			],
+			"resposta": 100.0
+		},
+		{
+			"id": "B_C4",
+			"enunciado": "Uma jaqueta de R$200 está com 35% de desconto. Qual o desconto em reais?",
+			"etapas": [
+				{"texto": "Passo 1 — Calcule 10% do valor:\n10% de 200 = R$", "resposta": 20.0},
+				{"texto": "Passo 2 — Some 3 vezes (30%):\n20 + 20 + 20 = R$", "resposta": 60.0},
+				{"texto": "Passo 3 — Calcule 5% (metade de 10%):\n5% de 200 = R$", "resposta": 10.0},
+				{"texto": "Passo final — Some 30% + 5%:\n60 + 10 = R$", "resposta": 70.0},
+			],
+			"resposta": 70.0
 		},
 	],
 	"apoio": [
@@ -301,14 +340,17 @@ func proxima_sessao_disponivel() -> int:
 
 func get_exercicio(metodo: String, intencao: String) -> Dictionary:
 	var banco := exercicios_A if metodo == "A" else exercicios_B
-	if not banco.has(intencao):
-		return {}
 
-	# Verifica erros agendados para esta sessão
 	for erro in erros_agendados:
 		if erro["sessao_alvo"] == sessao_atual_id and erro["metodo"] == metodo:
 			erros_agendados.erase(erro)
-			return erro["exercicio"]
+			var ex: Dictionary = erro["exercicio"]
+			if intencao == "completar" and not ex.has("etapas"):
+				break
+			return ex
+
+	if not banco.has(intencao):
+		return {}
 
 	var lista: Array = banco[intencao].duplicate()
 	lista.shuffle()
